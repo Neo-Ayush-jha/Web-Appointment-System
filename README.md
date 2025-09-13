@@ -2,6 +2,11 @@
 
 This is the backend for the Appointment Booking System. It provides RESTful APIs for user authentication, appointment management, organization handling, and feedback collection.
 
+# 📺 Demo Video
+
+*Watch the full demo of the project on YouTube:*
+
+👉 [Watch on YouTube](https://youtu.be/bFTyfSZOsXw?si=8x0C8xtFRXhIDMG5)
 ---
 
 ## 🚀 Features
@@ -23,11 +28,11 @@ This is the backend for the Appointment Booking System. It provides RESTful APIs
 - **MySQL** (via `mysql2`)
 - **JWT** for authentication
 - **Multer** for file uploads
-- **Nodemailer** for email notifications
+- **Nodemailer** for email notifications Mailtrap (https://mailtrap.io/)
 - **dotenv** for environment variables
-- **Railway** for cloud database hosting (MySQL)
-
 ---
+
+
 
 ## 🛠️ Getting Started
 
@@ -54,7 +59,8 @@ EMAIL_PASS=your_email_password
 node server.js
 ````
 ### Project Structure
-backend/
+```
+Appointment-System
 │
 ├── config/
 │   └── db.js               # MySQL connection
@@ -95,7 +101,7 @@ backend/
 ├── server.js              # Entry point
 ├── package.json
 └── README.md
-
+```
 
 ### User Roles
 -   Customer: Can book and manage own appointments
@@ -108,7 +114,7 @@ backend/
 
 You can test all the API endpoints using the Postman collection provided below:
 
- [Postman Collection Link](https://solar-meadow-640134.postman.co/workspace/My-Workspace~3b1ec586-7551-49f0-87c2-2af3e979b42f/collection/22737106-d7337984-2674-4ac6-a4bf-769fa332b82f?action=share&source=copy-link&creator=22737106)
+ [Postman Collection Link](https://documenter.getpostman.com/view/22737106/2sB3B8stPA)
 
 ###  How to Use
 
