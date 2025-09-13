@@ -288,7 +288,8 @@ const Dashboard: React.FC = () => {
                           {`with ${
                             user?.role === "customer"
                               ? appointment.professional?.name
-                              : appointment.client?.name || appointment.customer?.name
+                              : appointment.client?.name ||
+                                appointment.customer?.name
                           }`}
                         </p>
                       </div>
@@ -315,7 +316,7 @@ const Dashboard: React.FC = () => {
 
                     <div className="text-right">
                       <p className="text-sm font-medium text-gray-900">
-                        {formatCurrency(appointment?.price) }
+                        {formatCurrency(appointment?.price)}
                       </p>
                       <p className="text-sm text-gray-500">
                         {appointment.duration} min

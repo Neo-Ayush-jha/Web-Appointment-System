@@ -18,11 +18,20 @@ interface ClientStats {
   lastAppointment?: string;
 }
 
+interface Feedback {
+  appointmentId: number;
+  rating: number;
+  comment: string;
+}
+
 const Clients: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [clientStats, setClientStats] = useState<ClientStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
+  const [feedbacks, setFeedbacks] = useState<Record<number, Feedback | null>>(
+    {}
+  );
 
   useEffect(() => {
     fetchClientAppointments();
@@ -41,13 +50,12 @@ const Clients: React.FC = () => {
     }
   };
 
-  console.log("Appointments fetched:", appointments);
   const calculateClientStats = (appointments: Appointment[]) => {
     const clientMap = new Map<string, ClientStats>();
     appointments.forEach((appointment) => {
-      const clientKey = appointment.customer?.email || "";
-      const clientName = appointment.customer?.name || "Unknown";
-      const clientEmail = appointment.customer?.email || "";
+      const clientKey = appointment.client?.email || "";
+      const clientName = appointment.client?.name || "Unknown";
+      const clientEmail = appointment.client?.email || "";
       if (!clientMap.has(clientKey)) {
         clientMap.set(clientKey, {
           name: clientName,
@@ -58,23 +66,18 @@ const Clients: React.FC = () => {
           totalRevenue: 0,
         });
       }
-
       const stats = clientMap.get(clientKey)!;
       stats.totalAppointments++;
-
       if (appointment.status === "completed") {
         stats.completedAppointments++;
         stats.totalRevenue += appointment.price;
       } else if (appointment.status === "cancelled") {
         stats.cancelledAppointments++;
       }
-
-      // Update last appointment date
       if (!stats.lastAppointment || appointment.date > stats.lastAppointment) {
         stats.lastAppointment = appointment.date;
       }
     });
-
     const statsArray = Array.from(clientMap.values()).sort(
       (a, b) => b.totalRevenue - a.totalRevenue
     );
@@ -82,7 +85,16 @@ const Clients: React.FC = () => {
   };
 
   const getClientAppointments = (clientEmail: string) => {
-    return appointments.filter((apt) => apt.customer?.email === clientEmail);
+    return appointments.filter((apt) => apt.client?.email === clientEmail);
+  };
+
+  const fetchFeedback = async (appointmentId: number) => {
+    try {
+      const res = await appointmentAPI.getMyFeedback(appointmentId);
+      setFeedbacks((prev) => ({ ...prev, [appointmentId]: res }));
+    } catch {
+      setFeedbacks((prev) => ({ ...prev, [appointmentId]: null }));
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -106,7 +118,6 @@ const Clients: React.FC = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
-  console.log("Appointments", clientStats);
 
   const totalStats = {
     totalClients: clientStats.length,
@@ -134,7 +145,6 @@ const Clients: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Client Management</h1>
         <p className="mt-1 text-sm text-gray-500">
@@ -142,7 +152,6 @@ const Clients: React.FC = () => {
         </p>
       </div>
 
-      {/* Overall Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="card">
           <div className="flex items-center">
@@ -157,7 +166,6 @@ const Clients: React.FC = () => {
             </div>
           </div>
         </div>
-
         <div className="card">
           <div className="flex items-center">
             <div className="p-3 rounded-full bg-green-100 text-green-600">
@@ -171,7 +179,6 @@ const Clients: React.FC = () => {
             </div>
           </div>
         </div>
-
         <div className="card">
           <div className="flex items-center">
             <div className="p-3 rounded-full bg-purple-100 text-purple-600">
@@ -187,7 +194,6 @@ const Clients: React.FC = () => {
             </div>
           </div>
         </div>
-
         <div className="card">
           <div className="flex items-center">
             <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
@@ -203,7 +209,6 @@ const Clients: React.FC = () => {
         </div>
       </div>
 
-      {/* Client List */}
       <div className="card">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold text-gray-900">
@@ -247,7 +252,6 @@ const Clients: React.FC = () => {
                       </div>
                     </div>
                   </div>
-
                   <div className="flex items-center space-x-6">
                     <div className="text-center">
                       <p className="text-sm font-medium text-gray-900">
@@ -296,8 +300,6 @@ const Clients: React.FC = () => {
                     </button>
                   </div>
                 </div>
-
-                {/* Client Appointments Details */}
                 {selectedClient === client.email && (
                   <div className="mt-4 pt-4 border-t">
                     <h4 className="text-sm font-medium text-gray-900 mb-3">
@@ -308,9 +310,9 @@ const Clients: React.FC = () => {
                         (appointment) => (
                           <div
                             key={appointment.id}
-                            className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded"
+                            className="flex flex-col space-y-2 py-2 px-3 bg-gray-50 rounded"
                           >
-                            <div className="flex items-center space-x-3">
+                            <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-sm font-medium text-gray-900">
                                   {appointment.service}
@@ -322,18 +324,41 @@ const Clients: React.FC = () => {
                                   at {appointment.time}
                                 </p>
                               </div>
+                              <div className="flex items-center space-x-3">
+                                <span
+                                  className={`status-badge text-xs ${getStatusColor(
+                                    appointment.status
+                                  )}`}
+                                >
+                                  {appointment.status.replace("_", " ")}
+                                </span>
+                                <span className="text-sm font-medium text-gray-900">
+                                  {formatCurrency(appointment.price)}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex items-center space-x-3">
-                              <span
-                                className={`status-badge text-xs ${getStatusColor(
-                                  appointment.status
-                                )}`}
-                              >
-                                {appointment.status.replace("_", " ")}
-                              </span>
-                              <span className="text-sm font-medium text-gray-900">
-                                {formatCurrency(appointment.price)}
-                              </span>
+                            <div>
+                              {getStatusColor(appointment.status) ===
+                                "status-completed" && (
+                                <button
+                                  onClick={() => fetchFeedback(appointment.id)}
+                                  className="text-sm text-blue-600 hover:underline"
+                                >
+                                  View Feedback
+                                </button>
+                              )}
+                              {feedbacks[appointment.id] && (
+                                <div className="mt-2 p-2 bg-white border rounded">
+                                  <p className="text-sm">
+                                    Rating:{" "}
+                                    {feedbacks[appointment.id]?.rating || "N/A"}
+                                  </p>
+                                  <p className="text-sm text-gray-600">
+                                    {feedbacks[appointment.id]?.comment ||
+                                      "No feedback given"}
+                                  </p>
+                                </div>
+                              )}
                             </div>
                           </div>
                         )

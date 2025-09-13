@@ -41,6 +41,11 @@ io.use(authenticateSocket).on('connection', (socket) => {
 
 app.set('socketio', io);
 
-server.listen(process.env.PORT || 3000, () => {
-  console.log('Server started');
+// server.listen(process.env.PORT || 3000, () => {
+//   console.log('Server started');
+// });
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server started on http://0.0.0.0:${PORT}`);
 });

@@ -254,7 +254,7 @@ const Appointments: React.FC = () => {
                     <td>
                       {user?.role === "customer"
                         ? a.professional?.name
-                        : a.customer?.name}
+                        : a.client?.name}
                     </td>
                     <td>
                       {new Date(a.date).toLocaleDateString()}

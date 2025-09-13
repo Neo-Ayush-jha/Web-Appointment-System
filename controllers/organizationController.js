@@ -7,8 +7,8 @@ exports.createOrganization = async (req, res) => {
   const isAdmin = req.user.role === "admin";
   try {
     await db.query(
-      `INSERT INTO organizations (name, description, established_date, address, phone, email, created_by, is_approved)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO organizations (name, description, established_date, address, phone, email, creator_id, is_approved)
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name,
         description,
@@ -20,6 +20,7 @@ exports.createOrganization = async (req, res) => {
         isAdmin,
       ]
     );
+
     res.status(201).json({
       success: true,
       message: isAdmin
@@ -27,24 +28,20 @@ exports.createOrganization = async (req, res) => {
         : "Organization request submitted, pending admin approval",
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error creating organization",
-        error: err.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error creating organization",
+      error: err.message,
+    });
   }
 };
 
 exports.approveOrganization = async (req, res) => {
   if (req.user.role !== "admin") {
-    return res
-      .status(403)
-      .json({
-        success: false,
-        message: "Only admin can approve organizations",
-      });
+    return res.status(403).json({
+      success: false,
+      message: "Only admin can approve organizations",
+    });
   }
 
   const organizationId = req.params.id;
@@ -55,13 +52,11 @@ exports.approveOrganization = async (req, res) => {
     ]);
     res.status(200).json({ success: true, message: "Organization approved" });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to approve organization",
-        error: err.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to approve organization",
+      error: err.message,
+    });
   }
 };
 
@@ -113,12 +108,10 @@ exports.assignProfessionalToOrganization = async (req, res) => {
       .status(200)
       .json({ success: true, message: "User assigned to organization" });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to assign user",
-        error: err.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to assign user",
+      error: err.message,
+    });
   }
 };

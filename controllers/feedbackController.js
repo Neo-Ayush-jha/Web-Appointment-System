@@ -1,6 +1,6 @@
 const multer = require("multer");
 const path = require("path");
-const db = require("../config/db"); 
+const db = require("../config/db");
 
 // File upload setup
 const storage = multer.diskStorage({
@@ -75,3 +75,115 @@ exports.submitFeedback = [
     }
   },
 ];
+exports.viewFeedback = async (req, res) => {
+  const professionalId = req.user?.id; // Extracted from token by middleware
+
+  if (!professionalId) {
+    return res.status(400).json({
+      success: false,
+      message: "Professional ID not found in token.",
+    });
+  }
+
+  try {
+    const [feedbacks] = await db.query(
+      `
+      SELECT 
+        f.id,
+        f.rating,
+        f.experience,
+        f.suggestion,
+        f.image_url,
+        f.created_at,
+        u.name AS user_name
+      FROM feedbacks f
+      JOIN users u ON f.user_id = u.id
+      WHERE f.professional_id = ?
+      ORDER BY f.created_at DESC
+      `,
+      [professionalId]
+    );
+
+    const [averageRatingResult] = await db.query(
+      `
+      SELECT AVG(rating) AS average_rating
+      FROM feedbacks
+      WHERE professional_id = ?
+      `,
+      [professionalId]
+    );
+
+    const averageRating = averageRatingResult[0].average_rating
+      ? parseFloat(averageRatingResult[0].average_rating).toFixed(1)
+      : null;
+
+    res.status(200).json({
+      success: true,
+      message: "Feedback retrieved successfully.",
+      data: {
+        feedbacks,
+        averageRating,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving feedback",
+      error: err.message,
+    });
+  }
+};
+
+exports.viewMyFeedback = async (req, res) => {
+  const professionalId = req.user.id;
+
+  try {
+    const [feedbacks] = await db.query(
+      `
+      SELECT 
+        f.id,
+        f.rating,
+        f.experience,
+        f.suggestion,
+        f.image_url,
+        f.created_at,
+        u.name AS user_name
+      FROM feedbacks f
+      JOIN users u ON f.user_id = u.id
+      WHERE f.professional_id = ?
+      ORDER BY f.created_at DESC
+      `,
+      [professionalId]
+    );
+
+    const [averageRatingResult] = await db.query(
+      `
+      SELECT AVG(rating) AS average_rating
+      FROM feedbacks
+      WHERE professional_id = ?
+      `,
+      [professionalId]
+    );
+
+    const averageRating = averageRatingResult[0].average_rating
+      ? parseFloat(averageRatingResult[0].average_rating).toFixed(1)
+      : null;
+
+    res.status(200).json({
+      success: true,
+      message: "My feedback retrieved successfully.",
+      data: {
+        feedbacks,
+        averageRating,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving my feedback",
+      error: err.message,
+    });
+  }
+};
