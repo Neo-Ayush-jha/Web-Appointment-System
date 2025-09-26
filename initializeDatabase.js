@@ -74,6 +74,21 @@ async function initializeDatabase() {
         FOREIGN KEY (professional_id) REFERENCES users(id)
       )
     `);
+
+    // Step 5: Create Chats Table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS chats (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        appointment_id INT NOT NULL,
+        sender_id INT NOT NULL,
+        receiver_id INT NOT NULL,
+        message TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE,
+        FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
     console.log("Database and tables are ready");
   } catch (error) {
     console.error("Error initializing DB:", error);

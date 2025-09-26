@@ -1,15 +1,16 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
-import Layout from './components/Layout';
-import ProtectedRoute from './components/ProtectedRoute';
-import Landing from './pages/Landing';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Dashboard from './pages/Dashboard';
-import Appointments from './pages/Appointments';
-import Users from './pages/Users';
-import Organizations from './pages/Organizations';
-import Clients from './pages/Clients';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Landing from "./pages/Landing";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+import Appointments from "./pages/Appointments";
+import Users from "./pages/Users";
+import Organizations from "./pages/Organizations";
+import Clients from "./pages/Clients";
+import Chat from "./pages/Chat";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <div className="min-h-screen bg-gray-50">
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/chat" element={<Chat />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route
@@ -33,7 +35,7 @@ function App() {
             <Route
               path="/appointments"
               element={
-                <ProtectedRoute roles={['customer', 'doctor', 'barber']}>
+                <ProtectedRoute roles={["customer", "doctor", "barber"]}>
                   <Layout>
                     <Appointments />
                   </Layout>
@@ -43,7 +45,7 @@ function App() {
             <Route
               path="/clients"
               element={
-                <ProtectedRoute roles={['doctor', 'barber']}>
+                <ProtectedRoute roles={["doctor", "barber"]}>
                   <Layout>
                     <Clients />
                   </Layout>
@@ -53,7 +55,7 @@ function App() {
             <Route
               path="/users"
               element={
-                <ProtectedRoute roles={['admin']}>
+                <ProtectedRoute roles={["admin"]}>
                   <Layout>
                     <Users />
                   </Layout>
@@ -63,7 +65,7 @@ function App() {
             <Route
               path="/organizations"
               element={
-                <ProtectedRoute roles={['admin', 'doctor', 'barber']}>
+                <ProtectedRoute roles={["admin", "doctor", "barber"]}>
                   <Layout>
                     <Organizations />
                   </Layout>
