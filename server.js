@@ -49,7 +49,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/organizations", organizationRoutes);
-app.use("/api/chats", chatRoutes);
+app.use("/api/chat", chatRoutes);
 
 // Socket.IO Auth + Connection
 io.use(authenticateSocket).on("connection", (socket) => {
